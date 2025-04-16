@@ -32,7 +32,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <AuthProvider>
-        <BrowserRouter>
+        <BrowserRouter basename="/SE_Project">
           {/* Global S3 Config Error Message */}
           <div className="fixed top-4 left-4 right-4 z-50">
             <S3ConfigCheck />
