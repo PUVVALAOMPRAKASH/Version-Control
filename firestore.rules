@@ -1,0 +1,97 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow authenticated users to read and write their own repositories
+    match /repositories/{repositoryId} {
+      // Allow listing all repositories for discovery
+      allow list: if request.auth != null;
+      
+      // For reading specific repositories, enforce access control
+      // Allow reading basic repository info for access requests
+      allow get: if request.auth != null && (
+                  // Public repositories are readable by anyone
+                  resource.data.isPublic == true || 
+                  // Owner has full access
+                  request.auth.uid == resource.data.ownerId || 
+                  // Collaborators have access
+                  request.auth.uid in resource.data.collaborators ||
+                  // Allow reading basic info for access requests
+                  (
+                    // Only allow if user is authenticated
+                    request.auth != null &&
+                    // And repository exists
+                    exists(/databases/$(database)/documents/repositories/$(repositoryId)) &&
+                    // And user doesn't already have access
+                    !(request.auth.uid in resource.data.collaborators) &&
+                    // And user isn't the owner
+                    request.auth.uid != resource.data.ownerId
+                  )
+                );
+      
+      // Only owners can update or delete repositories
+      allow update, delete: if request.auth.uid == resource.data.ownerId;
+      
+      // Only allow creation if authenticated
+      allow create: if request.auth != null;
+    }
+    
+    // Allow authenticated users to read and write their own user profiles
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Access requests rules
+    match /accessRequests/{requestId} {
+      // Allow users to read their own access requests or those for repos they own
+      allow read: if request.auth != null && (
+                  request.auth.uid == resource.data.requesterId || 
+                  request.auth.uid == resource.data.ownerId);
+      
+      // Allow users to create access requests with proper validation
+      allow create: if request.auth != null && 
+                   request.auth.uid == request.resource.data.requesterId &&
+                   request.resource.data.status == 'pending' &&
+                   request.resource.data.repositoryId != null &&
+                   request.resource.data.ownerId != null;
+      
+      // Only repo owners can update access requests
+      allow update: if request.auth != null && request.auth.uid == resource.data.ownerId;
+    }
+    
+    // Allow pull requests between forked repos and original repos
+    match /pullRequests/{pullRequestId} {
+      // All authenticated users can read pull requests
+      allow read: if request.auth != null;
+      
+      // Check that source repo is a fork of target repo and user is owner of source
+      allow create: if request.auth != null && 
+                     exists(/databases/$(database)/documents/repositories/$(request.resource.data.sourceRepoId)) && 
+                     exists(/databases/$(database)/documents/repositories/$(request.resource.data.targetRepoId)) &&
+                     get(/databases/$(database)/documents/repositories/$(request.resource.data.sourceRepoId)).data.forkedFrom == request.resource.data.targetRepoId &&
+                     get(/databases/$(database)/documents/repositories/$(request.resource.data.sourceRepoId)).data.ownerId == request.auth.uid;
+      
+      // Only creator of PR or owner of target repo can update
+      allow update, delete: if request.auth != null && (
+                    request.auth.uid == resource.data.createdBy || 
+                    request.auth.uid == get(/databases/$(database)/documents/repositories/$(resource.data.targetRepoId)).data.ownerId
+                  );
+    }
+    
+    // Allow authenticated users to interact with their notifications
+    match /notifications/{notificationId} {
+      // Allow users to read their own notifications
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      
+      // Allow creating notifications with proper validation
+      allow create: if request.auth != null && 
+                   request.resource.data.userId != null &&
+                   request.resource.data.type != null &&
+                   request.resource.data.message != null &&
+                   request.resource.data.createdAt != null &&
+                   request.resource.data.createdBy == request.auth.uid;
+      
+      // Allow updating and deleting your own notifications
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+  }
+} 
