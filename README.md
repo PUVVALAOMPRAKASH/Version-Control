@@ -55,6 +55,6 @@ Usage:
 
 • Use rollback to manage file versions securely.
 
-License
-This project is licensed under the MIT License.
+License:
+• This project is licensed under the MIT License.
 
