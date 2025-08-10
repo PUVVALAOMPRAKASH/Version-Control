@@ -33,8 +33,7 @@ A full-stack GitHub-inspired repository management platform enabling collaborati
    cd Version-Control
    npm install
   ```
-
- Set up environment variables (e.g., database URI, JWT secret).
+• Set up environment variables (e.g., database URI, JWT secret).
 
 3.Run the backend server:
 
@@ -46,14 +45,15 @@ Run the frontend:
 cd client
 npm start
 ```
-Usage
-Register and login to create and manage repositories.
+Usage:
 
-Upload files and control repository visibility.
+• Register and login to create and manage repositories.
 
-Collaborate with team members with defined roles and permissions.
+• Upload files and control repository visibility.
 
-Use rollback to manage file versions securely.
+• Collaborate with team members with defined roles and permissions.
+
+• Use rollback to manage file versions securely.
 
 License
 This project is licensed under the MIT License.
