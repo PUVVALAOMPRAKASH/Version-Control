@@ -27,28 +27,25 @@ A full-stack GitHub-inspired repository management platform enabling collaborati
 
    ```bash
    git clone https://github.com/YourUsername/Version-Control.git
-Install dependencies:
+2.Install dependencies:
 
-bash
-Copy
-Edit
-cd Version-Control
-npm install
-Set up environment variables (e.g., database URI, JWT secret).
+   ```bash
+   cd Version-Control
+   npm install
+  ```
 
-Run the backend server:
+ Set up environment variables (e.g., database URI, JWT secret).
 
-bash
-Copy
-Edit
+3.Run the backend server:
+
+```bash
 npm start
 Run the frontend:
-
-bash
-Copy
-Edit
+```
+```bash
 cd client
 npm start
+```
 Usage
 Register and login to create and manage repositories.
 
@@ -61,18 +58,3 @@ Use rollback to manage file versions securely.
 License
 This project is licensed under the MIT License.
 
-
-
-
-
-
-
-
-
-Ask ChatGPT
-
-
-
-
-
-ChatGPT can make m
